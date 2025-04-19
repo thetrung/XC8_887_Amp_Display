@@ -11,7 +11,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define _XTAL_FREQ 8000000     //CPU Frequency
+#define _XTAL_FREQ 16000000     //CPU Frequency
 // uintX_t
 #define u8 uint8_t
 #define u16 uint16_t

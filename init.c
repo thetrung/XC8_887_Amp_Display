@@ -22,13 +22,14 @@ void init(void) {
     *  - IRCF[6-4]: 111 (8MHz/32MHz)
     *  - SCS[1-0]: 00 (Clock by FOSC [FOSC = INTOSC])
     */
-    OSCCONbits.IRCF = 0b111; // IRCF = 0b111 => 8 Mhz
+//    OSCCON = 0x00; // 0b0000 0000
+//    OSCCONbits.IRCF = 0b111; // IRCF = 0b111 => 8 Mhz
 //    OSCCONbits.SCS = 0b11; // using external high-speed crystal @ 16Mhz
-    OSCCONbits.SCS = 0b01;  // Select OSC source = FOSC.
+    OSCCONbits.SCS = 0b00;  // Select OSC source = FOSC.
     /*
     * Initialize I2C bus
     */
-    i2c_init(200000);
+    i2c_init(400000);
 
     /*
     * Interrupts
