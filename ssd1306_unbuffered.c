@@ -11,22 +11,22 @@
 //static u8 framebuffer[128*64/8];
 
 void OLED_Command(uint8_t c) {
-    I2C_Master_Start();
-    I2C_Master_Address(SSD1306_I2C_ADDRESS, I2C_MODE_WRITE); //Send address
-    I2C_Master_Write((u8)0x00);          //Control byte, next is command
-    I2C_Master_Write(c);                            //Command
-    I2C_Master_Stop();
+    i2c_start();
+    i2c_master_address(SSD1306_I2C_ADDRESS, I2C_MODE_WRITE); //Send address
+    i2c_write((u8)0x00);          //Control byte, next is command
+    i2c_write(c);                            //Command
+    i2c_stop();
 }
 
 void OLED_Commands(uint8_t *c, uint8_t n) {
-    I2C_Master_Start();
-    I2C_Master_Address(SSD1306_I2C_ADDRESS, I2C_MODE_WRITE); //Send address
-    I2C_Master_Write((u8)0x00);          //Control byte, next are commands
+    i2c_start();
+    i2c_master_address(SSD1306_I2C_ADDRESS, I2C_MODE_WRITE); //Send address
+    i2c_write((u8)0x00);          //Control byte, next are commands
     while(n--) {                                    //Loop in commands...
-        I2C_Master_Write(*c);
+        i2c_write(*c);
         c++;
     }
-    I2C_Master_Stop();
+    i2c_stop();
 }
 
 void OLED_SetPageAndColumnAddress(uint8_t startPage, uint8_t endPage, uint8_t startColumn, uint8_t endColumn) {
@@ -116,13 +116,13 @@ void init_OLED(void) {
 void OLED_ClearDisplay(void) {
     OLED_SetPageAndColumnAddress(0x00, 0x07, 0x00, 0x7F);
 
-    I2C_Master_Start();
-    I2C_Master_Address(SSD1306_I2C_ADDRESS, I2C_MODE_WRITE); //Send address
-    I2C_Master_Write((uint8_t)0x40);          //Control byte, next are data
+    i2c_start();
+    i2c_master_address(SSD1306_I2C_ADDRESS, I2C_MODE_WRITE); //Send address
+    i2c_write((uint8_t)0x40);          //Control byte, next are data
     for(uint16_t byte=0; byte<FRAMEBUFFER; byte++) {       //Send a blank image (all zeroes)
-        I2C_Master_Write(0X00);
+        i2c_write(0X00);
     }
-    I2C_Master_Stop();
+    i2c_stop();
 }
 
 void OLED_InvertDisplay(u8 i) {
@@ -210,9 +210,9 @@ void OLED_DATA_WRITE(
     uint8_t startColumn, 
     uint8_t endColumn){
     OLED_SetPageAndColumnAddress(startPage, endPage, startColumn, endColumn);
-    I2C_Master_Start();
-    I2C_Master_Address(SSD1306_I2C_ADDRESS, I2C_MODE_WRITE);     //Send address
-    I2C_Master_Write((uint8_t)0x40);                    //Control byte, next are data
+    i2c_start();
+    i2c_master_address(SSD1306_I2C_ADDRESS, I2C_MODE_WRITE);     //Send address
+    i2c_write((uint8_t)0x40);                    //Control byte, next are data
 }
 
 /*
@@ -223,10 +223,10 @@ void OLED_DrawBitmap(uint8_t startPage, uint8_t endPage, uint8_t startColumn, ui
     OLED_DATA_WRITE(startPage, endPage, startColumn, endColumn);
     
     for(uint16_t byte=0; byte<bitmapSize; byte++) {     //Loop into bitmap data...
-        I2C_Master_Write(*bitmap);
+        i2c_write(*bitmap);
         bitmap++;
     }
-    I2C_Master_Stop();
+    i2c_stop();
 }
 
 inline void _OLED_Draw_H_Line(
@@ -245,9 +245,9 @@ inline void _OLED_Draw_H_Line(
     // Draw->I2C :
     for(u8 _x = x_start; _x < x_end; _x++){
         u8 page = (1 << (reminder));
-        I2C_Master_Write((invert ? 0 : 1) << page);
+        i2c_write((invert ? 0 : 1) << page);
     }
-    I2C_Master_Stop();
+    i2c_stop();
 }
 void OLED_Draw_H_Line(
     u8 x1,
@@ -291,21 +291,21 @@ void OLED_Draw_V_Line(
         // = 1111-1110 + 1
         // = 1111-1111
         u8 head = body - (1 << y_start) + 1; 
-        I2C_Master_Write(head);
+        i2c_write(head);
         // Body << only fill with 3+ pages
         // 1111-1111
         if(page_end - page_start > 1)
         for(u8 i = page_start+1; i < page_end; i++){
-            I2C_Master_Write(body);
+            i2c_write(body);
         }
         // Tail
         // (1 << 7+1)=0000-0000 - 1
         // 1111-1111
         u8 tail = (1 << (y_end + 1))-1; 
-        I2C_Master_Write(tail);
+        i2c_write(tail);
     }
     
-    I2C_Master_Stop();
+    i2c_stop();
 }
 
 /**
@@ -328,17 +328,17 @@ void OLED_DrawRectangle(
     OLED_DATA_WRITE(y1, y2, x, x + width);
     
     u8 page0 = 0b00001111; // pretend that we only fill 128x1
-    I2C_Master_Write(page0);
+    i2c_write(page0);
     
     for(u8 _x = 0; _x < x + width-2; _x++){
         u8 page = 0b00001001; // pretend that we only fill 128x1
-        I2C_Master_Write(page);
+        i2c_write(page);
     }
     
 //    i8 page = 0b11111111; // pretend that we only fill 128x1
-    I2C_Master_Write(page0);
+    i2c_write(page0);
     
-    I2C_Master_Stop();
+    i2c_stop();
 }
 
 
@@ -462,9 +462,9 @@ void OLED_PutChar(u8 c, u8 x, u8 y, bool invert) {
         offs = (c - 'S')*5;
         font_c = Font2[offs + i];
     }    
-    I2C_Master_Write(invert ? ~font_c : font_c);
+    i2c_write(invert ? ~font_c : font_c);
   }
-  I2C_Master_Stop();
+  i2c_stop();
 }
 void OLED_PrintString(char* c, u8 x, u8 y, bool invert){
     OLED_Command(SSD1306_SEGREMAP_FLIP);

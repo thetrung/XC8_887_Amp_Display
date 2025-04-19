@@ -11,7 +11,7 @@
 #define	OLED_H
 
 #include "commons.h"
-#include "I2CMaster.h"
+#include "i2c_master.h"
 
 #ifndef SSD1306_I2C_ADDRESS
   #define SSD1306_I2C_ADDRESS   0x3C

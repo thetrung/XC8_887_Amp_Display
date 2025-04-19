@@ -51,17 +51,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=I2CMaster.c init.c main.c ssd1306_unbuffered.c
+SOURCEFILES_QUOTED_IF_SPACED=init.c main.c ssd1306_unbuffered.c i2c_master.c
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/I2CMaster.p1 ${OBJECTDIR}/init.p1 ${OBJECTDIR}/main.p1 ${OBJECTDIR}/ssd1306_unbuffered.p1
-POSSIBLE_DEPFILES=${OBJECTDIR}/I2CMaster.p1.d ${OBJECTDIR}/init.p1.d ${OBJECTDIR}/main.p1.d ${OBJECTDIR}/ssd1306_unbuffered.p1.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/init.p1 ${OBJECTDIR}/main.p1 ${OBJECTDIR}/ssd1306_unbuffered.p1 ${OBJECTDIR}/i2c_master.p1
+POSSIBLE_DEPFILES=${OBJECTDIR}/init.p1.d ${OBJECTDIR}/main.p1.d ${OBJECTDIR}/ssd1306_unbuffered.p1.d ${OBJECTDIR}/i2c_master.p1.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/I2CMaster.p1 ${OBJECTDIR}/init.p1 ${OBJECTDIR}/main.p1 ${OBJECTDIR}/ssd1306_unbuffered.p1
+OBJECTFILES=${OBJECTDIR}/init.p1 ${OBJECTDIR}/main.p1 ${OBJECTDIR}/ssd1306_unbuffered.p1 ${OBJECTDIR}/i2c_master.p1
 
 # Source Files
-SOURCEFILES=I2CMaster.c init.c main.c ssd1306_unbuffered.c
+SOURCEFILES=init.c main.c ssd1306_unbuffered.c i2c_master.c
 
 
 
@@ -88,14 +88,6 @@ MP_PROCESSOR_OPTION=16F887
 # ------------------------------------------------------------------------------------
 # Rules for buildStep: compile
 ifeq ($(TYPE_IMAGE), DEBUG_RUN)
-${OBJECTDIR}/I2CMaster.p1: I2CMaster.c  nbproject/Makefile-${CND_CONF}.mk 
-	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/I2CMaster.p1.d 
-	@${RM} ${OBJECTDIR}/I2CMaster.p1 
-	${MP_CC} $(MP_EXTRA_CC_PRE) -mcpu=$(MP_PROCESSOR_OPTION) -c  -D__DEBUG=1  -mdebugger=pickit5   -mdfp="${DFP_DIR}/xc8"  -fno-short-double -fno-short-float -O0 -fasmfile -maddrqual=ignore -xassembler-with-cpp -mwarn=-3 -Wa,-a -DXPRJ_default=$(CND_CONF)  -msummary=-psect,-class,+mem,-hex,-file  -ginhx32 -Wl,--data-init -mno-keep-startup -mno-osccal -mno-resetbits -mno-save-resetbits -mno-download -mno-stackcall -mno-default-config-bits $(COMPARISON_BUILD)  -std=c99 -gdwarf-3 -mstack=compiled:auto:auto     -o ${OBJECTDIR}/I2CMaster.p1 I2CMaster.c 
-	@-${MV} ${OBJECTDIR}/I2CMaster.d ${OBJECTDIR}/I2CMaster.p1.d 
-	@${FIXDEPS} ${OBJECTDIR}/I2CMaster.p1.d $(SILENT) -rsi ${MP_CC_DIR}../  
-	
 ${OBJECTDIR}/init.p1: init.c  nbproject/Makefile-${CND_CONF}.mk 
 	@${MKDIR} "${OBJECTDIR}" 
 	@${RM} ${OBJECTDIR}/init.p1.d 
@@ -120,15 +112,15 @@ ${OBJECTDIR}/ssd1306_unbuffered.p1: ssd1306_unbuffered.c  nbproject/Makefile-${C
 	@-${MV} ${OBJECTDIR}/ssd1306_unbuffered.d ${OBJECTDIR}/ssd1306_unbuffered.p1.d 
 	@${FIXDEPS} ${OBJECTDIR}/ssd1306_unbuffered.p1.d $(SILENT) -rsi ${MP_CC_DIR}../  
 	
-else
-${OBJECTDIR}/I2CMaster.p1: I2CMaster.c  nbproject/Makefile-${CND_CONF}.mk 
+${OBJECTDIR}/i2c_master.p1: i2c_master.c  nbproject/Makefile-${CND_CONF}.mk 
 	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/I2CMaster.p1.d 
-	@${RM} ${OBJECTDIR}/I2CMaster.p1 
-	${MP_CC} $(MP_EXTRA_CC_PRE) -mcpu=$(MP_PROCESSOR_OPTION) -c   -mdfp="${DFP_DIR}/xc8"  -fno-short-double -fno-short-float -O0 -fasmfile -maddrqual=ignore -xassembler-with-cpp -mwarn=-3 -Wa,-a -DXPRJ_default=$(CND_CONF)  -msummary=-psect,-class,+mem,-hex,-file  -ginhx32 -Wl,--data-init -mno-keep-startup -mno-osccal -mno-resetbits -mno-save-resetbits -mno-download -mno-stackcall -mno-default-config-bits $(COMPARISON_BUILD)  -std=c99 -gdwarf-3 -mstack=compiled:auto:auto     -o ${OBJECTDIR}/I2CMaster.p1 I2CMaster.c 
-	@-${MV} ${OBJECTDIR}/I2CMaster.d ${OBJECTDIR}/I2CMaster.p1.d 
-	@${FIXDEPS} ${OBJECTDIR}/I2CMaster.p1.d $(SILENT) -rsi ${MP_CC_DIR}../  
+	@${RM} ${OBJECTDIR}/i2c_master.p1.d 
+	@${RM} ${OBJECTDIR}/i2c_master.p1 
+	${MP_CC} $(MP_EXTRA_CC_PRE) -mcpu=$(MP_PROCESSOR_OPTION) -c  -D__DEBUG=1  -mdebugger=pickit5   -mdfp="${DFP_DIR}/xc8"  -fno-short-double -fno-short-float -O0 -fasmfile -maddrqual=ignore -xassembler-with-cpp -mwarn=-3 -Wa,-a -DXPRJ_default=$(CND_CONF)  -msummary=-psect,-class,+mem,-hex,-file  -ginhx32 -Wl,--data-init -mno-keep-startup -mno-osccal -mno-resetbits -mno-save-resetbits -mno-download -mno-stackcall -mno-default-config-bits $(COMPARISON_BUILD)  -std=c99 -gdwarf-3 -mstack=compiled:auto:auto     -o ${OBJECTDIR}/i2c_master.p1 i2c_master.c 
+	@-${MV} ${OBJECTDIR}/i2c_master.d ${OBJECTDIR}/i2c_master.p1.d 
+	@${FIXDEPS} ${OBJECTDIR}/i2c_master.p1.d $(SILENT) -rsi ${MP_CC_DIR}../  
 	
+else
 ${OBJECTDIR}/init.p1: init.c  nbproject/Makefile-${CND_CONF}.mk 
 	@${MKDIR} "${OBJECTDIR}" 
 	@${RM} ${OBJECTDIR}/init.p1.d 
@@ -152,6 +144,14 @@ ${OBJECTDIR}/ssd1306_unbuffered.p1: ssd1306_unbuffered.c  nbproject/Makefile-${C
 	${MP_CC} $(MP_EXTRA_CC_PRE) -mcpu=$(MP_PROCESSOR_OPTION) -c   -mdfp="${DFP_DIR}/xc8"  -fno-short-double -fno-short-float -O0 -fasmfile -maddrqual=ignore -xassembler-with-cpp -mwarn=-3 -Wa,-a -DXPRJ_default=$(CND_CONF)  -msummary=-psect,-class,+mem,-hex,-file  -ginhx32 -Wl,--data-init -mno-keep-startup -mno-osccal -mno-resetbits -mno-save-resetbits -mno-download -mno-stackcall -mno-default-config-bits $(COMPARISON_BUILD)  -std=c99 -gdwarf-3 -mstack=compiled:auto:auto     -o ${OBJECTDIR}/ssd1306_unbuffered.p1 ssd1306_unbuffered.c 
 	@-${MV} ${OBJECTDIR}/ssd1306_unbuffered.d ${OBJECTDIR}/ssd1306_unbuffered.p1.d 
 	@${FIXDEPS} ${OBJECTDIR}/ssd1306_unbuffered.p1.d $(SILENT) -rsi ${MP_CC_DIR}../  
+	
+${OBJECTDIR}/i2c_master.p1: i2c_master.c  nbproject/Makefile-${CND_CONF}.mk 
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/i2c_master.p1.d 
+	@${RM} ${OBJECTDIR}/i2c_master.p1 
+	${MP_CC} $(MP_EXTRA_CC_PRE) -mcpu=$(MP_PROCESSOR_OPTION) -c   -mdfp="${DFP_DIR}/xc8"  -fno-short-double -fno-short-float -O0 -fasmfile -maddrqual=ignore -xassembler-with-cpp -mwarn=-3 -Wa,-a -DXPRJ_default=$(CND_CONF)  -msummary=-psect,-class,+mem,-hex,-file  -ginhx32 -Wl,--data-init -mno-keep-startup -mno-osccal -mno-resetbits -mno-save-resetbits -mno-download -mno-stackcall -mno-default-config-bits $(COMPARISON_BUILD)  -std=c99 -gdwarf-3 -mstack=compiled:auto:auto     -o ${OBJECTDIR}/i2c_master.p1 i2c_master.c 
+	@-${MV} ${OBJECTDIR}/i2c_master.d ${OBJECTDIR}/i2c_master.p1.d 
+	@${FIXDEPS} ${OBJECTDIR}/i2c_master.p1.d $(SILENT) -rsi ${MP_CC_DIR}../  
 	
 endif
 
