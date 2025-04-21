@@ -87,12 +87,12 @@
 #define CHAR_SIZE 5 // Character : 5x8 (1-page)
 
 
-void OLED_Command(uint8_t c);
-void OLED_Commands(uint8_t *c, uint8_t n);
-void OLED_SetPageAndColumnAddress(uint8_t startPage, uint8_t endPage, uint8_t startColumn, uint8_t endColumn);
+void OLED_Command(u8 c);
+void OLED_Commands(u8 *c, u8 n);
+void OLED_SetPageAndColumnAddress(u8 startPage, u8 endPage, u8 startColumn, u8 endColumn);
 void init_OLED(void);
 void OLED_ClearDisplay(void);
-void OLED_InvertDisplay(uint8_t i);
+void OLED_InvertDisplay(u8 i);
 void OLED_StartScrollRight(u8 start, u8 stop);
 void OLED_StartScrollLeft(u8 start, u8 stop);
 void OLED_StartScrollDiagRight(u8 start, u8 stop);
@@ -100,30 +100,28 @@ void OLED_StartScrollDiagLeft(u8 start, u8 stop);
 void OLED_StopScroll(void);
 void OLED_Dim(bool dim);
 void OLED_DATA_WRITE(
-    uint8_t startPage, 
-    uint8_t endPage, 
-    uint8_t startColumn, 
-    uint8_t endColumn);
-void OLED_DrawBitmap(uint8_t startPage, uint8_t endPage, uint8_t startColumn, uint8_t endColumn, uint8_t *bitmap, uint16_t bitmapSize);
-void OLED_Draw_V_Line(
-    uint8_t x,
-    uint8_t y1, 
-    uint8_t y2);
-void OLED_Draw_H_Line(
-    uint8_t x1,
-    uint8_t x2, 
-    uint8_t y);
-void OLED_Erase_H_Line(
-    uint8_t x1,
-    uint8_t x2, 
-    uint8_t y);
+    u8 startPage, 
+    u8 endPage, 
+    u8 startColumn, 
+    u8 endColumn);
+void OLED_DrawBitmap(u8 startPage, u8 endPage, u8 startColumn, u8 endColumn, u8 *bitmap, uint16_t bitmapSize);
+void _OLED_Draw_H_Line(u8 x1,u8 x2, u8 y,bool invert);
+#define OLED_Draw_H_Line(x1, x2, y) _OLED_Draw_H_Line(x1, x2, y, false)
+#define OLED_Erase_H_Line(x1, x2, y) _OLED_Draw_H_Line(x1, x2, y, true)
+#define draw_progressbar(x1, x2, y, value) \
+    OLED_Draw_H_Line(x1, value, y);           \
+    OLED_Erase_H_Line(value, x2, y);       \
+    
+void OLED_Draw_V_Line(u8 x,u8 y1, u8 y2);
+
 void OLED_DrawRectangle(
-    uint8_t x, // 0..127
-    uint8_t y, // 0..63
-    uint8_t width, 
-    uint8_t height);
-void OLED_Printf(char* c, u8 x, u8 y);
-void OLED_Printfi(char* c, u8 x, u8 y);
+    u8 x, // 0..127
+    u8 y, // 0..63
+    u8 width, 
+    u8 height);
 void OLED_PutChar(u8 c, u8 x, u8 y, bool invert);
 void OLED_PrintString(char* c, u8 x, u8 y, bool invert);
+#define OLED_Printf(c, x, y) OLED_PrintString(c, x, y, false)
+#define OLED_Printfi(c, x, y) OLED_PrintString(c, x, y, true)
+
 #endif

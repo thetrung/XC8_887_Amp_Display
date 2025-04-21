@@ -6,11 +6,9 @@
  * So almost any PIC can work with it,
  * Unlike buffered version that require 1KB+ SRAM.
  */
-#include "ssd1306_unbuffered.h"
+#include "oled.h"
 
-//static u8 framebuffer[128*64/8];
-
-void OLED_Command(uint8_t c) {
+void OLED_Command(u8 c) {
     i2c_start();
     i2c_master_address(SSD1306_I2C_ADDRESS, I2C_MODE_WRITE); //Send address
     i2c_write((u8)0x00);          //Control byte, next is command
@@ -18,7 +16,7 @@ void OLED_Command(uint8_t c) {
     i2c_stop();
 }
 
-void OLED_Commands(uint8_t *c, uint8_t n) {
+void OLED_Commands(u8 *c, u8 n) {
     i2c_start();
     i2c_master_address(SSD1306_I2C_ADDRESS, I2C_MODE_WRITE); //Send address
     i2c_write((u8)0x00);          //Control byte, next are commands
@@ -29,18 +27,9 @@ void OLED_Commands(uint8_t *c, uint8_t n) {
     i2c_stop();
 }
 
-void OLED_SetPageAndColumnAddress(uint8_t startPage, uint8_t endPage, uint8_t startColumn, uint8_t endColumn) {
-    /*
-    uint8_t commands[] = {
-        SSD1306_PAGEADDR,   //Set page address
-        startPage,
-        endPage,
-        SSD1306_COLUMNADDR, //Set column address
-        startColumn,
-        endColumn
-    };
-    */
-    uint8_t commands[6];
+inline void OLED_SetPageAndColumnAddress(u8 startPage, u8 endPage, u8 startColumn, u8 endColumn) {
+  
+    u8 commands[6];
     commands[0] = SSD1306_PAGEADDR;
     commands[1] = startPage;
     commands[2] = endPage;
@@ -51,7 +40,7 @@ void OLED_SetPageAndColumnAddress(uint8_t startPage, uint8_t endPage, uint8_t st
 }
 
 void init_OLED(void) {
-    uint8_t commands[] = {
+    u8 commands[] = {
         SSD1306_DISPLAYOFF,             //Switch off display (0xAE)
         SSD1306_SETDISPLAYCLOCKDIV,     //Set Display Clock Divide (0xD5)
             0x80,                       //Clock divide is 0x80
@@ -118,7 +107,7 @@ void OLED_ClearDisplay(void) {
 
     i2c_start();
     i2c_master_address(SSD1306_I2C_ADDRESS, I2C_MODE_WRITE); //Send address
-    i2c_write((uint8_t)0x40);          //Control byte, next are data
+    i2c_write((u8)0x40);          //Control byte, next are data
     for(uint16_t byte=0; byte<FRAMEBUFFER; byte++) {       //Send a blank image (all zeroes)
         i2c_write(0X00);
     }
@@ -205,20 +194,20 @@ void OLED_Dim(bool dim)
 }
 
 void OLED_DATA_WRITE(
-    uint8_t startPage, 
-    uint8_t endPage, 
-    uint8_t startColumn, 
-    uint8_t endColumn){
+    u8 startPage, 
+    u8 endPage, 
+    u8 startColumn, 
+    u8 endColumn){
     OLED_SetPageAndColumnAddress(startPage, endPage, startColumn, endColumn);
     i2c_start();
     i2c_master_address(SSD1306_I2C_ADDRESS, I2C_MODE_WRITE);     //Send address
-    i2c_write((uint8_t)0x40);                    //Control byte, next are data
+    i2c_write((u8)0x40);                    //Control byte, next are data
 }
 
 /*
  * The nature of frame-buffer display is overwritten continuously with values.
  */
-void OLED_DrawBitmap(uint8_t startPage, uint8_t endPage, uint8_t startColumn, uint8_t endColumn, uint8_t *bitmap, uint16_t bitmapSize) {
+void OLED_DrawBitmap(u8 startPage, u8 endPage, u8 startColumn, u8 endColumn, u8 *bitmap, uint16_t bitmapSize) {
     
     OLED_DATA_WRITE(startPage, endPage, startColumn, endColumn);
     
@@ -229,11 +218,7 @@ void OLED_DrawBitmap(uint8_t startPage, uint8_t endPage, uint8_t startColumn, ui
     i2c_stop();
 }
 
-inline void _OLED_Draw_H_Line(
-    u8 x1,
-    u8 x2, 
-    u8 y,
-    bool invert){
+void _OLED_Draw_H_Line(u8 x1,u8 x2, u8 y,bool invert){
     // swap order :
     u8 x_start = min(x1, x2);
     u8 x_end = max(x1, x2);
@@ -249,28 +234,14 @@ inline void _OLED_Draw_H_Line(
     }
     i2c_stop();
 }
-void OLED_Draw_H_Line(
-    u8 x1,
-    u8 x2, 
-    u8 y
-){
-    _OLED_Draw_H_Line(x1, x2, y, false);
-}
-void OLED_Erase_H_Line(
-    u8 x1,
-    u8 x2, 
-    u8 y
-){
-    _OLED_Draw_H_Line(x1, x2, y, true);
-}
 
 /// Reserve 8 bytes for a single column.
 u8 page_buffer[8] = {};    
 
 void OLED_Draw_V_Line(
-    uint8_t x,
-    uint8_t y1, 
-    uint8_t y2){
+    u8 x,
+    u8 y1, 
+    u8 y2){
     // swap order :
     u8 y_start = min(y1, y2);
     u8 y_end = max(y1, y2);
@@ -473,11 +444,5 @@ void OLED_PrintString(char* c, u8 x, u8 y, bool invert){
         OLED_PutChar(*c, x + counter * CHAR_SIZE, y, invert);
         counter++;
         c++;
-    }
-}
-void OLED_Printf(char* c, u8 x, u8 y){
-    OLED_PrintString(c, x, y, false);
-}
-void OLED_Printfi(char* c, u8 x, u8 y){
-    OLED_PrintString(c, x, y, true);
+   }
 }

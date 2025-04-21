@@ -38,10 +38,12 @@ void init(void) {
     * PEIE: 1 (Peripheral interrupts disabled)
     * GIE: 1 (Global interrupts disabled)
     */
-//    TMR0IE = 0;
-//    SSPIE = 0;
-//    PEIE = 0;
-//    GIE = 0;
+    TMR0IE = 0;
+    SSPIE = 0;
+    PEIE = 0;
+    GIE = 0;
+    
+    PORTA = 0xFF; // enable all Port A I/O.
 }
 
 
