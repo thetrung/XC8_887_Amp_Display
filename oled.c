@@ -218,7 +218,11 @@ void OLED_DrawBitmap(u8 startPage, u8 endPage, u8 startColumn, u8 endColumn, u8 
     i2c_stop();
 }
 
-void _OLED_Draw_H_Line(u8 x1,u8 x2, u8 y,bool invert){
+void _OLED_Draw_H_Line(
+    u8 x1,
+    u8 x2, 
+    u8 y,
+    bool invert){
     // swap order :
     u8 x_start = min(x1, x2);
     u8 x_end = max(x1, x2);
@@ -229,8 +233,8 @@ void _OLED_Draw_H_Line(u8 x1,u8 x2, u8 y,bool invert){
     OLED_DATA_WRITE(single_page, single_page, x_start, x_end);
     // Draw->I2C :
     for(u8 _x = x_start; _x < x_end; _x++){
-        u8 page = (1 << (reminder));
-        i2c_write((invert ? 0 : 1) << page);
+        u8 page = (u8)(1 << (reminder));
+        i2c_write((u8)((invert ? 0 : 1) << page));
     }
     i2c_stop();
 }
@@ -261,7 +265,7 @@ void OLED_Draw_V_Line(
         // 1111-1111 - (1 << 0)=0000-0001 + 1 
         // = 1111-1110 + 1
         // = 1111-1111
-        u8 head = body - (1 << y_start) + 1; 
+        u8 head = body - (u8)(1 << y_start) + 1; 
         i2c_write(head);
         // Body << only fill with 3+ pages
         // 1111-1111
@@ -272,7 +276,7 @@ void OLED_Draw_V_Line(
         // Tail
         // (1 << 7+1)=0000-0000 - 1
         // 1111-1111
-        u8 tail = (1 << (y_end + 1))-1; 
+        u8 tail = (u8)(1 << (y_end + 1))-1; 
         i2c_write(tail);
     }
     

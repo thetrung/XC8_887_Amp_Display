@@ -24,7 +24,7 @@ void i2c_init(const uint32_t c) {
     SSPCON2 = 0b00000000;    //pg85/234;
     
     //SSPADD (Frequency)
-    SSPADD = (_XTAL_FREQ / (4 * c)) - 1;
+    SSPADD = (u8)(_XTAL_FREQ / (4 * c)) - 1;
 //  SSPADD = (_XTAL_FREQ/(4*feq_K*100))-1; //Setting Clock Speed pg99/234
     SSPSTAT = 0b00000000;    //pg83/234
 }
@@ -55,8 +55,7 @@ void i2c_write(u8 data) {
 }
 
 void i2c_master_address(u8 address, u8 mode) {
-    u8 addressWithMode;
-    addressWithMode = address << 1;
+    u8 addressWithMode = (u8)(address << 1);
     addressWithMode += mode;
     i2c_hold();
     SSPBUF = addressWithMode;

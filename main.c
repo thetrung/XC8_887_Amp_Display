@@ -1,12 +1,15 @@
 /* NOTE on PIC16F887 ::
+ * The conversion process from 45K50 encountered a lot of bummer :
  * 
- * The conversion process from 45K50 encountered a lot 
- * of bumper :
- * - different usage of "const" : can no longer in arguments
- * - limited stack level : may lead to crash for no reason 
- * especially when I tried to call oled drawing function
- * from another file.
- * - limited code-protection + debugging config
+ * - Different usage of "const" : 
+ * Can no longer in arguments.
+ * 
+ * - Limited stack level : 
+ * May lead to crash for no reason. Especially when 
+ * I tried to call drawing function from another file.
+ * 
+ * - Configuration Bits:
+ * Limited code-protection + debugging.
  *
  */
 #include "main.h"
@@ -105,12 +108,10 @@ void blink(void){
 /*==============================================================================
  * Loop routine
  *============================================================================*/
-
 void loop(void) {
- 
-    delay(1);
+    // blink = delay.
     blink();
- 
+    // update ADC:
     AN0_value = ADC_Read(0);
     delay(2);
     
@@ -132,7 +133,7 @@ void loop(void) {
         OLED_Printf(text_ADC, 0, 36);
         
         // & Progress Bar :
-        draw_progressbar(0, 102, 48, AN0_value);
+        draw_progressbar(0, 102, 48, (u8)AN0_value);
         
         // Update cached value for AN0:
         AN0_prev = AN0_value;
