@@ -7,6 +7,7 @@
 #ifndef ADC_H
 #define	ADC_H
 #include "commons.h"
+#include "oled.h"
 /**===========================
  * CONFIG  
  *===========================*/
@@ -68,12 +69,15 @@ u8 ADC_Discovery(void){
             }
             else if(round > 0){
                 // stop scanning from here.
-//                sprintf(text_report, "#%d: found %d CH.", round, analog_determined);
-//                OLED_Printf(text_report, 0, 36);
-                delay(100);
                 break;
             }
         }
+        delay(100);
+        char* text_report[25];
+        sprintf(text_report, "Scanning.. ( %d/%d )", analog_determined, ANALOG_AMOUNT);
+        OLED_Erase_H_Line(30, 120, 36); 
+        OLED_Printf(text_report, 0, 36);
+        OLED_Draw_Progressbar(0, 102, 48, (round+1) * 10);
         // accumulate Round :
         if(round > 0)  // Discard 1st two rounds :
         round_result += analog_determined;

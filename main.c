@@ -22,8 +22,8 @@ u8 analog_current = 0;
 u8 analog_cache[ANALOG_AMOUNT] = {};
 u8 analog_value[ANALOG_AMOUNT] = {};
 char* analog_names[ANALOG_AMOUNT] = {
-    "TREBLE", 
-    "BASS"
+    " T R E B L E ", 
+    " B A S S "
 };
 bool wait_first = true;
 bool is_cleared = false; // clear once :
@@ -139,13 +139,15 @@ void main(void) {
     ADC_Init();
     blink();       // = delay
     
+    OLED_ClearDisplay();
+    
     // Scan ADC channels :
     u8 analog_discovered = ADC_Discovery();
     
      // Format Text :
-    OLED_ClearDisplay();
     char text_report[20] = "Found %d channels.";
     sprintf(text_report, "Found %d channels.", analog_discovered);
+    OLED_Erase_H_Line(35, 100, 36); // erase half-line 
     OLED_Printf(text_report, 0, 36);
     delay(1000);
     blink();
@@ -176,22 +178,22 @@ void main(void) {
                     is_cleared = true;
                     delay(10);
                 }
-                // Format Text :
-                char text_ADC[12] = "ADC[X] = XXX";
-                sprintf(text_ADC, "ADC[%d] = %d", i, analog_value[i]);
+                // Format Text : Compiler is stupid enough to not know array size 
+                char text_ADC[15] = "ADC ( X ) = XXX";
+                sprintf(text_ADC, "ADC ( %d ) = %d", i, analog_value[i]);
 
                 // Erase previous Analog name :
                 if(analog_current!=i){
-                    OLED_Erase_H_Line(0, 128/2, 27); // erase half-line 
+                    OLED_Erase_H_Line(0, 128/2, 36); // erase half-line 
                     OLED_Erase_H_Line(0, sizeof(text_ADC), 36);
                     // Display Text Label :
-                    OLED_Printf(analog_names[i], 0, 27);
+                    OLED_Printf(analog_names[i], 0, 36);
                 }   
                 // Display current value:
-                OLED_Printf(text_ADC, 0, 36);
+                OLED_Printf(text_ADC, 0, 17);
 
                 // & Progress Bar :
-                draw_progressbar(0, 102, 48, (u8)analog_value[i] * 3);
+                OLED_Draw_Progressbar(0, 102, 48, (u8)analog_value[i] * 3);
 
                 // Cache value for Analog Input:
                 analog_cache[i] = analog_value[i];

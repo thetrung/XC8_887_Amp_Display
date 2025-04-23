@@ -108,7 +108,7 @@ void OLED_DrawBitmap(u8 startPage, u8 endPage, u8 startColumn, u8 endColumn, u8 
 void _OLED_Draw_H_Line(u8 x1,u8 x2, u8 y,bool invert);
 #define OLED_Draw_H_Line(x1, x2, y) _OLED_Draw_H_Line(x1, x2, y, false)
 #define OLED_Erase_H_Line(x1, x2, y) _OLED_Draw_H_Line(x1, x2, y, true)
-#define draw_progressbar(x1, x2, y, value) \
+#define OLED_Draw_Progressbar(x1, x2, y, value) \
     OLED_Draw_H_Line(x1, value, y);           \
     OLED_Erase_H_Line(value, x2, y);       \
     
