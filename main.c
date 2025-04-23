@@ -14,17 +14,17 @@
  */
 #include "main.h"
 #define SSD1306_128_64
-#define ANALOG_AMOUNT 2 // Pins
+#define ANALOG_AMOUNT 14 // Pins
 /*==============================================================================
  * Variables 
  *============================================================================*/
-u8 analog_cache[ANALOG_AMOUNT];
-u8 analog_value[ANALOG_AMOUNT];
+u8 analog_current = 0;
+u8 analog_cache[ANALOG_AMOUNT] = {};
+u8 analog_value[ANALOG_AMOUNT] = {};
 char* analog_names[ANALOG_AMOUNT] = {
     "TREBLE", 
     "BASS"
 };
-u8 analog_current = -1; // none
 bool wait_first = true;
 bool is_cleared = false; // clear once :
 /*==============================================================================
@@ -139,6 +139,17 @@ void main(void) {
     ADC_Init();
     blink();       // = delay
     
+    // Scan ADC channels :
+    u8 analog_discovered = ADC_Discovery();
+    
+     // Format Text :
+    OLED_ClearDisplay();
+    char text_report[20] = "Found %d channels.";
+    sprintf(text_report, "Found %d channels.", analog_discovered);
+    OLED_Printf(text_report, 0, 36);
+    delay(1000);
+    blink();
+    
     delay(100);    // last delay.
     
    /*==============================================================================
@@ -148,7 +159,7 @@ void main(void) {
       // blink = delay.
         blink();
         // update ADC:
-        for(u8 i = 0; i < ANALOG_AMOUNT;i++){
+        for(u8 i = 0; i < analog_discovered;i++){
             analog_value[i] = ADC_Read(i)/3;
             /** NOTE :
              * A simple division will help with
@@ -156,7 +167,8 @@ void main(void) {
              */
             if(wait_first && analog_value[i]!=0) {
                 analog_cache[i]=analog_value[i];
-                wait_first = false; // done.
+                analog_current = 99; // force update label 1st time.
+                wait_first = false;  // done.
             }
             if(analog_value[i]!=analog_cache[i]){
                 if(!is_cleared){
@@ -168,14 +180,14 @@ void main(void) {
                 char text_ADC[12] = "ADC[X] = XXX";
                 sprintf(text_ADC, "ADC[%d] = %d", i, analog_value[i]);
 
-                // Erase old contents :
+                // Erase previous Analog name :
                 if(analog_current!=i){
                     OLED_Erase_H_Line(0, 128/2, 27); // erase half-line 
                     OLED_Erase_H_Line(0, sizeof(text_ADC), 36);
                     // Display Text Label :
                     OLED_Printf(analog_names[i], 0, 27);
                 }   
-                // Display value:
+                // Display current value:
                 OLED_Printf(text_ADC, 0, 36);
 
                 // & Progress Bar :

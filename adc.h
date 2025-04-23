@@ -8,6 +8,13 @@
 #define	ADC_H
 #include "commons.h"
 /**===========================
+ * CONFIG  
+ *===========================*/
+#ifndef ANALOG_AMOUNT
+#define ANALOG_AMOUNT 14
+#endif
+#define ROUND_SCAN 10
+/**===========================
  * FUNCTION IMPLEMENTATION 
  *===========================*/
 void ADC_Init(void)
@@ -18,7 +25,7 @@ void ADC_Init(void)
     ADRESH=0;		/* Flush ADC output Register */
     ADRESL=0;   
 }
-u8 ADC_Read(u8 channel)
+int ADC_Read(u8 channel)
 {
     int digital;
 
@@ -33,5 +40,48 @@ u8 ADC_Read(u8 channel)
     digital = (ADRESH*256) | (ADRESL);	/*Combine 8-bit LSB and 2-bit MSB*/
     return(digital/10);
 }
+u8 ADC_Discovery(void){
+    // Initialize : 
+    u8 round_result;
+    u8 analog_determined;
+    u8 analog_value[ANALOG_AMOUNT];
+    
+    // Filling empty value :
+    for(u8 i = 0; i < ANALOG_AMOUNT;i++) analog_value[i] = 99;
+    
+    // Scan all Analogs to automatically determine using amount :
+    for(u8 round = 0; round < ROUND_SCAN; round++){
+        for(u8 i = 0; i < ANALOG_AMOUNT;i++){
+            u8 current = ADC_Read(i)/3;
+            delay(2);
+            
+            // Update discovered analog channel :
+            analog_determined = i;
+
+            // Update fresh values :
+            if(analog_value[i] == 99){
+                analog_value[i] = current;
+            } 
+            // test if value is stable after 1st round :
+            else if(analog_value[i]== current){
+                // OK !
+            }
+            else if(round > 0){
+                // stop scanning from here.
+//                sprintf(text_report, "#%d: found %d CH.", round, analog_determined);
+//                OLED_Printf(text_report, 0, 36);
+                delay(100);
+                break;
+            }
+        }
+        // accumulate Round :
+        if(round > 0)  // Discard 1st two rounds :
+        round_result += analog_determined;
+    }
+    // Average result :
+    round_result /= (ROUND_SCAN-1);
+    return round_result;
+}
+
 #endif	/* ADC_H */
 
