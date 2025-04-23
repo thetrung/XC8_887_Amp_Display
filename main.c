@@ -17,8 +17,8 @@
 /*==============================================================================
  * Variables 
  *============================================================================*/
-int AN0_prev;
-int AN0_value;
+u8 AN0_prev[14] = {};
+u8 AN0_value[14] = {};
 bool wait_first = true;
 bool is_cleared = false; // clear once :
 /*==============================================================================
@@ -137,14 +137,15 @@ void main(void) {
       // blink = delay.
         blink();
         // update ADC:
-        AN0_value = ADC_Read(0);
-        delay(2);
-
-        if(wait_first && AN0_value!=0) {
-            AN0_prev=AN0_value;
+        for(u8 i = 0; i < sizeof(AN0_value);i++){
+            AN0_value[i] = ADC_Read(0);
+        }
+        delay(1);
+        if(wait_first && AN0_value[0]!=0) {
+            AN0_prev[0]=AN0_value[0];
             wait_first = false; // done.
         }
-        if(AN0_value!=AN0_prev){
+        if(AN0_value[0]!=AN0_prev){
             if(!is_cleared){
                 OLED_ClearDisplay();
                 is_cleared = true;
@@ -152,18 +153,18 @@ void main(void) {
             }
             // Format Text :
             char text_ADC[10] = "ADC = XXX";
-            sprintf(text_ADC, "ADC = %d", AN0_value);
+            sprintf(text_ADC, "ADC = %d", AN0_value[0]);
 
             // Display Text Label :
             OLED_Printf(text_ADC, 0, 36);
 
             // & Progress Bar :
-            draw_progressbar(0, 102, 48, (u8)AN0_value);
+            draw_progressbar(0, 102, 48, (u8)AN0_value[0]);
 
-            // Update cached value for AN0:
-            AN0_prev = AN0_value;
+            // Update cached value for all Analog Inputs:
+            for(u8 i = 0; i < sizeof(AN0_value);i++)
+                AN0_prev[i] = AN0_value[i];
         }
-
     // Test Bitmap drawing :
     //   const u8 image[] = {
     //        

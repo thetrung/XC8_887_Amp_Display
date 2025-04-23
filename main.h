@@ -18,7 +18,4 @@
 void loop(void);
 void blink(void);
 void display_adc(void);
-void ADC_Init(void);
-int ADC_Read(int channel);
-
 #endif

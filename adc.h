@@ -4,16 +4,9 @@
  *
  * Created on April 21, 2025, 1:27 PM
  */
-
 #ifndef ADC_H
 #define	ADC_H
 #include "commons.h"
-/**===========================
- * FUNCTION DECLARATION 
- *===========================*/
-void ADC_Init(void);
-int ADC_Read(int channel);
-
 /**===========================
  * FUNCTION IMPLEMENTATION 
  *===========================*/
@@ -25,7 +18,7 @@ void ADC_Init(void)
     ADRESH=0;		/* Flush ADC output Register */
     ADRESL=0;   
 }
-int ADC_Read(int channel)
+u8 ADC_Read(u8 channel)
 {
     int digital;
 
@@ -40,7 +33,5 @@ int ADC_Read(int channel)
     digital = (ADRESH*256) | (ADRESL);	/*Combine 8-bit LSB and 2-bit MSB*/
     return(digital/10);
 }
-
-
 #endif	/* ADC_H */
 

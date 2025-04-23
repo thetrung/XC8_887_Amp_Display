@@ -45,7 +45,4 @@
 
 #define delay __delay_ms
 
-//External functions
-extern void init(void);
-
 #endif
