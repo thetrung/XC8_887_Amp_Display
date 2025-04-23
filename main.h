@@ -11,6 +11,9 @@
 #define	MAIN_H
 
 #include "init.h"
+#include "adc.h"
+#include "oled.h"
+#include "i2c_master.h"
 
 void loop(void);
 void blink(void);

@@ -5,8 +5,12 @@
         <group>
             <file>file:/Users/thetrung/MPLABXProjects/16F887_AMP_Display.X/main.h</file>
             <file>file:/Users/thetrung/MPLABXProjects/16F887_AMP_Display.X/oled.h</file>
+            <file>file:/Users/thetrung/MPLABXProjects/16F887_AMP_Display.X/init.c</file>
+            <file>file:/Users/thetrung/MPLABXProjects/16F887_AMP_Display.X/i2c_master.h</file>
             <file>file:/Users/thetrung/MPLABXProjects/16F887_AMP_Display.X/oled.c</file>
             <file>file:/Users/thetrung/MPLABXProjects/16F887_AMP_Display.X/main.c</file>
+            <file>file:/Users/thetrung/MPLABXProjects/16F887_AMP_Display.X/init.h</file>
+            <file>file:/Users/thetrung/MPLABXProjects/16F887_AMP_Display.X/adc.h</file>
         </group>
     </open-files>
 </project-private>

@@ -13,9 +13,6 @@
  *
  */
 #include "main.h"
-#include "adc.h"
-#include "oled.h"
-
 #define SSD1306_128_64
 /*==============================================================================
  * Variables 
@@ -24,6 +21,44 @@ int AN0_prev;
 int AN0_value;
 bool wait_first = true;
 bool is_cleared = false; // clear once :
+/*==============================================================================
+ * System initialization
+ *============================================================================*/
+void init(void) {
+    /*
+    * Init Oscillator: 16MHz
+    *  - SPLLEN[7]: 0 (4x PLL enabled)
+    *  - IRCF[6-4]: 111 (8MHz/32MHz)
+    *  - SCS[1-0]: 00 (Clock by FOSC [FOSC = INTOSC])
+    */
+//    OSCCON = 0x00; // 0b0000 0000
+//    OSCCONbits.IRCF = 0b111; // IRCF = 0b111 => 8 Mhz
+//    OSCCONbits.SCS = 0b11; // using external high-speed crystal @ 16Mhz
+    OSCCONbits.SCS = 0b00;  // Select OSC source = FOSC.
+    /*
+    * Initialize I2C bus
+    */
+    i2c_init(400000);
+
+    /*
+    * Interrupts
+    * TMR0IE: 0 (Timer0 interrupt disabled)
+    * SSP1 (I2C): 0 (SSP1 interrupt initially disabled)
+    * PEIE: 1 (Peripheral interrupts disabled)
+    * GIE: 1 (Global interrupts disabled)
+    */
+    TMR0IE = 0;
+    SSPIE = 0;
+    PEIE = 0;
+    GIE = 0;
+    
+    PORTA = 0xFF; // enable all Port A I/O.
+}
+/*==============================================================================
+ * Interrupt Service Routine
+ *============================================================================*/
+void __interrupt() isr(void) {
+}
 /*==============================================================================
  * Main routine
  *  - Initialize system
@@ -55,7 +90,6 @@ void main(void) {
      delay(10);
      OLED_Draw_V_Line(127, 0, 63);
      delay(10);
-    
     /**
      * TEXT RENDERING TEST :
      * - 8 LINES at cost of 9 Pixels each.
@@ -96,7 +130,58 @@ void main(void) {
     delay(10); //ms
    
     //Loop
-    while(1) loop();
+    while(1) {
+    /*==============================================================================
+     * Loop routine
+     *============================================================================*/
+      // blink = delay.
+        blink();
+        // update ADC:
+        AN0_value = ADC_Read(0);
+        delay(2);
+
+        if(wait_first && AN0_value!=0) {
+            AN0_prev=AN0_value;
+            wait_first = false; // done.
+        }
+        if(AN0_value!=AN0_prev){
+            if(!is_cleared){
+                OLED_ClearDisplay();
+                is_cleared = true;
+                delay(10);
+            }
+            // Format Text :
+            char text_ADC[10] = "ADC = XXX";
+            sprintf(text_ADC, "ADC = %d", AN0_value);
+
+            // Display Text Label :
+            OLED_Printf(text_ADC, 0, 36);
+
+            // & Progress Bar :
+            draw_progressbar(0, 102, 48, (u8)AN0_value);
+
+            // Update cached value for AN0:
+            AN0_prev = AN0_value;
+        }
+
+    // Test Bitmap drawing :
+    //   const u8 image[] = {
+    //        
+    //        0b00001111,
+    //        0b00001001,
+    //        0b00001001,
+    //        0b00001001,
+    //        0b00001001,
+    //        0b00001001,
+    //        0b00001001,
+    //        0b00001001,
+    //        0b00001001,
+    //        0b00001001,
+    //        0b00001111,
+    //        
+    //   };
+    //   OLED_DrawBitmap(0, 0, 0, 127, image, sizeof(image));
+    }
 }
 void blink(void){
     pinMode(RA1, OUTPUT);
@@ -104,56 +189,4 @@ void blink(void){
     digitalWrite(RA1, HIGH);
     delay(10);
     digitalWrite(RA1, LOW);
-}
-/*==============================================================================
- * Loop routine
- *============================================================================*/
-void loop(void) {
-    // blink = delay.
-    blink();
-    // update ADC:
-    AN0_value = ADC_Read(0);
-    delay(2);
-    
-    if(wait_first && AN0_value!=0) {
-        AN0_prev=AN0_value;
-        wait_first = false; // done.
-    }
-    if(AN0_value!=AN0_prev){
-        if(!is_cleared){
-            OLED_ClearDisplay();
-            is_cleared = true;
-            delay(10);
-        }
-        // Format Text :
-        char text_ADC[10] = "ADC = XXX";
-        sprintf(text_ADC, "ADC = %d", AN0_value);
-        
-        // Display Text Label :
-        OLED_Printf(text_ADC, 0, 36);
-        
-        // & Progress Bar :
-        draw_progressbar(0, 102, 48, (u8)AN0_value);
-        
-        // Update cached value for AN0:
-        AN0_prev = AN0_value;
-    }
-
-// Test Bitmap drawing :
-//   const u8 image[] = {
-//        
-//        0b00001111,
-//        0b00001001,
-//        0b00001001,
-//        0b00001001,
-//        0b00001001,
-//        0b00001001,
-//        0b00001001,
-//        0b00001001,
-//        0b00001001,
-//        0b00001001,
-//        0b00001111,
-//        
-//   };
-//   OLED_DrawBitmap(0, 0, 0, 127, image, sizeof(image));
 }

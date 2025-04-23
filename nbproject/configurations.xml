@@ -23,11 +23,7 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
-      <itemPath>init.c</itemPath>
       <itemPath>main.c</itemPath>
-      <itemPath>i2c_master.c</itemPath>
-      <itemPath>oled.c</itemPath>
-      <itemPath>adc.c</itemPath>
     </logicalFolder>
   </logicalFolder>
   <projectmakefile>Makefile</projectmakefile>
@@ -38,7 +34,7 @@
         <targetDevice>PIC16F887</targetDevice>
         <targetHeader></targetHeader>
         <targetPluginBoard></targetPluginBoard>
-        <platformTool>PK5Tool</platformTool>
+        <platformTool>noID</platformTool>
         <languageToolchain>XC8</languageToolchain>
         <languageToolchainVersion>3.00</languageToolchainVersion>
         <platform>4</platform>
@@ -255,6 +251,8 @@
         <property key="memories.programmemory" value="true"/>
         <property key="memories.programmemory.ranges" value="0-1fff"/>
         <property key="poweroptions.powerenable" value="false"/>
+        <property key="programmerToGoFilePath"
+                  value="/Users/thetrung/MPLABXProjects/16F887_AMP_Display.X/debug/default/16F887_AMP_Display_ptg"/>
         <property key="programmerToGoImageName" value="16F887_AMP_Display_ptg"/>
         <property key="programoptions.donoteraseauxmem" value="false"/>
         <property key="programoptions.eraseb4program" value="true"/>

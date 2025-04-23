@@ -9,10 +9,8 @@
 
 #ifndef INIT_H
 #define	INIT_H
-
 #include "commons.h"
-#include "i2c_master.h"
-#include "oled.h"
+
 // Functionalities 
 #pragma config FOSC = HS        // Oscillator Selection bits (HS oscillator: High-speed crystal/resonator on RA6/OSC2/CLKOUT and RA7/OSC1/CLKIN)
 #pragma config WDTE = OFF       // Watchdog Timer Enable bit (WDT disabled and can be enabled by SWDTEN bit of the WDTCON register)
