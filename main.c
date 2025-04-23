@@ -23,8 +23,20 @@ u8 analog_cache[ANALOG_AMOUNT] = {};
 u8 analog_value[ANALOG_AMOUNT] = {};
 const char* analog_names[ANALOG_AMOUNT] = {
     " T R E B L E ", 
-    " B A S S "
-};
+    " B A S S ",
+    " B O O S T ", 
+    " E C H O ", 
+    " D E L A Y ", 
+    " R E V R B ", 
+    " T R E B L E ", 
+    " T R E B L E ", 
+    " T R E B L E ", 
+    " T R E B L E ", 
+    " T R E B L E ", 
+    " T R E B L E ", 
+    " T R E B L E ", 
+    " T R E B L E "
+}; // Pretending this was actual 14 Names.
 const char* TEXT_NO_ANALOG = "No Analog. Restart Now.";
 const char* TEXT_FOUND_CHANNEL = "Found %d channels.";
 const char* TEXT_ADC_VALUE = "ADC ( %d ) = %d";
@@ -107,19 +119,19 @@ void demo_rendering(void){
     OLED_Printfi("        R E A D Y         "  ,0, 63);
     blink();
     delay(100);
-//    OLED_StartScrollRight(0x00, 0x0F);
-//    delay(2000);
-//    OLED_StopScroll();
-//    delay(1000);
-//    OLED_StartScrollLeft(0x00, 0x0F);
-//    delay(2000);
-//    OLED_StopScroll();
-//    delay(1000);    
-//    OLED_StartScrollDiagRight(0x00, 0x07);
-//    delay(2000);
-//    OLED_StartScrollDiagLeft(0x00, 0x07);
-//    delay(2000);
-//    OLED_StopScroll();
+    OLED_StartScrollRight(0x00, 0x0F);
+    delay(2000);
+    OLED_StopScroll();
+    delay(1000);
+    OLED_StartScrollLeft(0x00, 0x0F);
+    delay(2000);
+    OLED_StopScroll();
+    delay(1000);    
+    OLED_StartScrollDiagRight(0x00, 0x07);
+    delay(2000);
+    OLED_StartScrollDiagLeft(0x00, 0x07);
+    delay(2000);
+    OLED_StopScroll();
 }
 /*==============================================================================
  * Interrupt Service Routine
@@ -139,8 +151,12 @@ void main(void) {
     init_OLED();
     blink();       // = delay
 
-    demo_rendering();
-    blink();       // = delay
+//    demo_rendering();
+//    blink();       // = delay
+    
+    OLED_Printfi("        R E A D Y         "  ,0, 36);
+    blink();
+    delay(1000);
     
     ADC_Init();
     blink();       // = delay
