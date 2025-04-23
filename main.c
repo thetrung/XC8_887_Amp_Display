@@ -144,19 +144,24 @@ void main(void) {
     // Scan ADC channels :
     u8 analog_discovered = ADC_Discovery();
     
-     // Format Text :
+    // Format Text :
     char text_report[20] = "Found %d channels.";
-    sprintf(text_report, "Found %d channels.", analog_discovered);
+    
+    // If found none channels :
+    if(analog_discovered == 0){
+        sprintf(text_report, "No Analog. Restart Now.");
+    } 
+    else { 
+        sprintf(text_report, "Found %d channels.", analog_discovered);
+    }
     OLED_Erase_H_Line(35, 100, 36); // erase half-line 
     OLED_Printf(text_report, 0, 36);
-    delay(1000);
     blink();
-    
-    delay(100);    // last delay.
-    
+    if(analog_discovered > 0) delay(1000); else delay(5000);
    /*==============================================================================
     *  Loop routine
     *============================================================================*/
+    if(analog_discovered > 0)
     while(1) {
       // blink = delay.
         blink();
@@ -184,13 +189,11 @@ void main(void) {
 
                 // Erase previous Analog name :
                 if(analog_current!=i){
-                    OLED_Erase_H_Line(0, 128/2, 36); // erase half-line 
-                    OLED_Erase_H_Line(0, sizeof(text_ADC), 36);
-                    // Display Text Label :
-                    OLED_Printf(analog_names[i], 0, 36);
-                }   
-                // Display current value:
-                OLED_Printf(text_ADC, 0, 17);
+                    OLED_Erase_H_Line(0, 128/2, 36);     // Erase old Text Label
+                    OLED_Printf(analog_names[i], 0, 36); // Display Text Label
+                }
+                OLED_Erase_H_Line(30, 75 , 17);    // Clear Index + Value
+                OLED_Printf(text_ADC, 0, 17);      // Display current value
 
                 // & Progress Bar :
                 OLED_Draw_Progressbar(0, 102, 48, (u8)analog_value[i] * 3);

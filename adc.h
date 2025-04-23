@@ -73,8 +73,8 @@ u8 ADC_Discovery(void){
             }
         }
         delay(100);
-        char* text_report[25];
-        sprintf(text_report, "Scanning.. ( %d/%d )", analog_determined, ANALOG_AMOUNT);
+        char* text_report[35];
+        sprintf(text_report, "Scanning.. ( %d / %d )", analog_determined, ANALOG_AMOUNT);
         OLED_Erase_H_Line(30, 120, 36); 
         OLED_Printf(text_report, 0, 36);
         OLED_Draw_Progressbar(0, 102, 48, (round+1) * 10);
