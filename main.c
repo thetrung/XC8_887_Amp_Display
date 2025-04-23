@@ -21,10 +21,16 @@
 u8 analog_current = 0;
 u8 analog_cache[ANALOG_AMOUNT] = {};
 u8 analog_value[ANALOG_AMOUNT] = {};
-char* analog_names[ANALOG_AMOUNT] = {
+const char* analog_names[ANALOG_AMOUNT] = {
     " T R E B L E ", 
     " B A S S "
 };
+const char* TEXT_NO_ANALOG = "No Analog. Restart Now.";
+const char* TEXT_FOUND_CHANNEL = "Found %d channels.";
+const char* TEXT_ADC_VALUE = "ADC ( %d ) = %d";
+/*==============================================================================
+ * FLAGS
+ *==============================================================================*/  
 bool wait_first = true;
 bool is_cleared = false; // clear once :
 /*==============================================================================
@@ -145,14 +151,14 @@ void main(void) {
     u8 analog_discovered = ADC_Discovery();
     
     // Format Text :
-    char text_report[20] = "Found %d channels.";
+    char text_report[20];
     
     // If found none channels :
     if(analog_discovered == 0){
-        sprintf(text_report, "No Analog. Restart Now.");
+        sprintf(text_report, TEXT_NO_ANALOG);
     } 
     else { 
-        sprintf(text_report, "Found %d channels.", analog_discovered);
+        sprintf(text_report, TEXT_FOUND_CHANNEL, analog_discovered);
     }
     OLED_Erase_H_Line(35, 100, 36); // erase half-line 
     OLED_Printf(text_report, 0, 36);
@@ -184,8 +190,8 @@ void main(void) {
                     delay(10);
                 }
                 // Format Text : Compiler is stupid enough to not know array size 
-                char text_ADC[15] = "ADC ( X ) = XXX";
-                sprintf(text_ADC, "ADC ( %d ) = %d", i, analog_value[i]);
+                char text_ADC[15];
+                sprintf(text_ADC, TEXT_ADC_VALUE, i, analog_value[i]);
 
                 // Erase previous Analog name :
                 if(analog_current!=i){
