@@ -14,11 +14,17 @@
  */
 #include "main.h"
 #define SSD1306_128_64
+#define ANALOG_AMOUNT 2 // Pins
 /*==============================================================================
  * Variables 
  *============================================================================*/
-u8 AN0_prev[14] = {};
-u8 AN0_value[14] = {};
+u8 analog_cache[ANALOG_AMOUNT];
+u8 analog_value[ANALOG_AMOUNT];
+char* analog_names[ANALOG_AMOUNT] = {
+    "TREBLE", 
+    "BASS"
+};
+u8 analog_current = -1; // none
 bool wait_first = true;
 bool is_cleared = false; // clear once :
 /*==============================================================================
@@ -54,25 +60,7 @@ void init(void) {
     
     PORTA = 0xFF; // enable all Port A I/O.
 }
-/*==============================================================================
- * Interrupt Service Routine
- *============================================================================*/
-void __interrupt() isr(void) {
-}
-/*==============================================================================
- * Main routine
- *  - Initialize system
- *  - Loop forever
- *============================================================================*/
-void main(void) {
-    
-    init();
-    delay(100);
-    
-    blink();       // indicate finished init()
-      
-    init_OLED();
-    delay(100);
+void demo_rendering(void){
     
      OLED_Draw_H_Line(0, 127, 0);
      delay(10);
@@ -126,45 +114,80 @@ void main(void) {
 //    OLED_StartScrollDiagLeft(0x00, 0x07);
 //    delay(2000);
 //    OLED_StopScroll();
+}
+/*==============================================================================
+ * Interrupt Service Routine
+ *============================================================================*/
+void __interrupt() isr(void) {
+}
+/*==============================================================================
+ * Main routine
+ *  - Initialize system
+ *  - Loop forever
+ *============================================================================*/
+void main(void) {
+    
+    init();
+    blink();       // = delay
+      
+    init_OLED();
+    blink();       // = delay
+
+    demo_rendering();
+    blink();       // = delay
+    
     ADC_Init();
-    delay(10); //ms
-   
-    //Loop
+    blink();       // = delay
+    
+    delay(100);    // last delay.
+    
+   /*==============================================================================
+    *  Loop routine
+    *============================================================================*/
     while(1) {
-    /*==============================================================================
-     * Loop routine
-     *============================================================================*/
       // blink = delay.
         blink();
         // update ADC:
-        for(u8 i = 0; i < sizeof(AN0_value);i++){
-            AN0_value[i] = ADC_Read(0);
+        for(u8 i = 0; i < ANALOG_AMOUNT;i++){
+            analog_value[i] = ADC_Read(i)/3;
+            /** NOTE :
+             * A simple division will help with
+             * noisy value smoothening...
+             */
+            if(wait_first && analog_value[i]!=0) {
+                analog_cache[i]=analog_value[i];
+                wait_first = false; // done.
+            }
+            if(analog_value[i]!=analog_cache[i]){
+                if(!is_cleared){
+                    OLED_ClearDisplay();
+                    is_cleared = true;
+                    delay(10);
+                }
+                // Format Text :
+                char text_ADC[12] = "ADC[X] = XXX";
+                sprintf(text_ADC, "ADC[%d] = %d", i, analog_value[i]);
+
+                // Erase old contents :
+                if(analog_current!=i){
+                    OLED_Erase_H_Line(0, 128/2, 27); // erase half-line 
+                    OLED_Erase_H_Line(0, sizeof(text_ADC), 36);
+                    // Display Text Label :
+                    OLED_Printf(analog_names[i], 0, 27);
+                }   
+                // Display value:
+                OLED_Printf(text_ADC, 0, 36);
+
+                // & Progress Bar :
+                draw_progressbar(0, 102, 48, (u8)analog_value[i] * 3);
+
+                // Cache value for Analog Input:
+                analog_cache[i] = analog_value[i];
+                analog_current = i;
+            }
         }
         delay(1);
-        if(wait_first && AN0_value[0]!=0) {
-            AN0_prev[0]=AN0_value[0];
-            wait_first = false; // done.
-        }
-        if(AN0_value[0]!=AN0_prev){
-            if(!is_cleared){
-                OLED_ClearDisplay();
-                is_cleared = true;
-                delay(10);
-            }
-            // Format Text :
-            char text_ADC[10] = "ADC = XXX";
-            sprintf(text_ADC, "ADC = %d", AN0_value[0]);
-
-            // Display Text Label :
-            OLED_Printf(text_ADC, 0, 36);
-
-            // & Progress Bar :
-            draw_progressbar(0, 102, 48, (u8)AN0_value[0]);
-
-            // Update cached value for all Analog Inputs:
-            for(u8 i = 0; i < sizeof(AN0_value);i++)
-                AN0_prev[i] = AN0_value[i];
-        }
+        
     // Test Bitmap drawing :
     //   const u8 image[] = {
     //        
@@ -185,9 +208,9 @@ void main(void) {
     }
 }
 void blink(void){
-    pinMode(RA1, OUTPUT);
+    pinMode(RA4, OUTPUT);
     delay(10);
-    digitalWrite(RA1, HIGH);
+    digitalWrite(RA4, HIGH);
     delay(10);
-    digitalWrite(RA1, LOW);
+    digitalWrite(RA4, LOW);
 }
