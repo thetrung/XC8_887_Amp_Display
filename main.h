@@ -15,7 +15,5 @@
 #include "oled.h"
 #include "i2c_master.h"
 
-void loop(void);
 void blink(void);
-void display_adc(void);
 #endif

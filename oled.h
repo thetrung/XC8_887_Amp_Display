@@ -84,11 +84,19 @@
     #define  SELECTED_SSD1306_EXTERNALVCC // default 
 #endif 
 #define FRAMEBUFFER 1024 // for 128x64
-#define CHAR_SIZE 5 // Character : 5x8 (1-page)
-
+#define CHAR_SIZE 5      // Character : 5x8 (1-page)
+char OLED_text[25];      // Text Buffer: Limit to 25 Characters (x5 = 125px) 
+/** Differences between char* text[25] & char text[25] :
+ * -- char* text[25] : 50 bytes
+ * -- char  text[25] : 25 bytes 
+ * While both stay on Ram, char* will store pointer (2 bytes) instead of
+ * actual char (1 byte) - which x2 the size of the such buffer.
+ * 
+ * - "const" : will let XC8 put this on Flash memory instead of Ram.
+ */
 
 void OLED_Command(u8 c);
-void OLED_Commands(u8 *c, u8 n);
+void OLED_Commands(const u8 *c, u8 n);
 void OLED_SetPageAndColumnAddress(u8 startPage, u8 endPage, u8 startColumn, u8 endColumn);
 void init_OLED(void);
 void OLED_ClearDisplay(void);
@@ -120,7 +128,7 @@ void OLED_DrawRectangle(
     u8 width, 
     u8 height);
 void OLED_PutChar(u8 c, u8 x, u8 y, bool invert);
-void OLED_PrintString(char* c, u8 x, u8 y, bool invert);
+void OLED_PrintString(const char* c, u8 x, u8 y, bool invert);
 #define OLED_Printf(c, x, y) OLED_PrintString(c, x, y, false)
 #define OLED_Printfi(c, x, y) OLED_PrintString(c, x, y, true)
 
@@ -133,7 +141,7 @@ void OLED_Command(u8 c) {
     i2c_stop();
 }
 
-void OLED_Commands(u8 *c, u8 n) {
+void OLED_Commands(const u8 *c, u8 n) {
     i2c_start();
     i2c_master_address(SSD1306_I2C_ADDRESS, I2C_MODE_WRITE); //Send address
     i2c_write((u8)0x00);          //Control byte, next are commands
@@ -157,7 +165,7 @@ inline void OLED_SetPageAndColumnAddress(u8 startPage, u8 endPage, u8 startColum
 }
 
 void init_OLED(void) {
-    u8 commands[] = {
+    const u8 commands[] = {
         SSD1306_DISPLAYOFF,             //Switch off display (0xAE)
         SSD1306_SETDISPLAYCLOCKDIV,     //Set Display Clock Divide (0xD5)
             0x80,                       //Clock divide is 0x80
@@ -225,7 +233,7 @@ void OLED_ClearDisplay(void) {
     i2c_start();
     i2c_master_address(SSD1306_I2C_ADDRESS, I2C_MODE_WRITE); //Send address
     i2c_write((u8)0x40);          //Control byte, next are data
-    for(uint16_t byte=0; byte<FRAMEBUFFER; byte++) {       //Send a blank image (all zeroes)
+    for(u16 byte=0; byte<FRAMEBUFFER; byte++) {       //Send a blank image (all zeroes)
         i2c_write(0X00);
     }
     i2c_stop();
@@ -328,7 +336,7 @@ void OLED_DrawBitmap(u8 startPage, u8 endPage, u8 startColumn, u8 endColumn, u8 
     
     OLED_DATA_WRITE(startPage, endPage, startColumn, endColumn);
     
-    for(uint16_t byte=0; byte<bitmapSize; byte++) {     //Loop into bitmap data...
+    for(u16 byte=0; byte<bitmapSize; byte++) {     //Loop into bitmap data...
         i2c_write(*bitmap);
         bitmap++;
     }
@@ -357,7 +365,7 @@ void _OLED_Draw_H_Line(
 }
 
 /// Reserve 8 bytes for a single column.
-u8 page_buffer[8] = {};    
+//u8 page_buffer[8] = {};    
 
 void OLED_Draw_V_Line(
     u8 x,
@@ -558,7 +566,7 @@ void OLED_PutChar(u8 c, u8 x, u8 y, bool invert) {
   }
   i2c_stop();
 }
-void OLED_PrintString(char* c, u8 x, u8 y, bool invert){
+void OLED_PrintString(const char* c, u8 x, u8 y, bool invert){
     OLED_Command(SSD1306_SEGREMAP_FLIP);
     u8 counter = 0;
     while(*c!=0x00){

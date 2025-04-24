@@ -21,7 +21,7 @@
 u8 analog_current = 0;
 u8 analog_cache[ANALOG_AMOUNT] = {};
 u8 analog_value[ANALOG_AMOUNT] = {};
-const char* analog_names[ANALOG_AMOUNT] = {
+const char* analog_names[] = { // Array of [pointer -> string(flash)]
     " T R E B L E ", 
     " B A S S ",
     " B O O S T ", 
@@ -37,9 +37,9 @@ const char* analog_names[ANALOG_AMOUNT] = {
     " T R E B L E ", 
     " T R E B L E "
 }; // Pretending this was actual 14 Names.
+const char* TEXT_ADC_VALUE = "ADC ( %d ) = %d";
 const char* TEXT_NO_ANALOG = "No Analog. Restart Now.";
 const char* TEXT_FOUND_CHANNEL = "Found %d channels.";
-const char* TEXT_ADC_VALUE = "ADC ( %d ) = %d";
 /*==============================================================================
  * FLAGS
  *==============================================================================*/  
@@ -80,58 +80,76 @@ void init(void) {
 }
 void demo_rendering(void){
     
-     OLED_Draw_H_Line(0, 127, 0);
-     delay(10);
-     OLED_Draw_H_Line(0, 127, 8);
-     delay(10);
-     OLED_Draw_H_Line(0, 127, 32);
-     delay(10);
-     OLED_Draw_H_Line(0, 127, 55);
-     delay(10);
-     OLED_Draw_H_Line(0, 127, 63);
-     delay(10);
-     OLED_Draw_V_Line(0, 0, 63);
-     delay(10);
-     OLED_Draw_V_Line(63, 0, 63);
-     delay(10);
-     OLED_Draw_V_Line(127, 0, 63);
-     delay(10);
-    /**
-     * TEXT RENDERING TEST :
-     * - 8 LINES at cost of 9 Pixels each.
-     * - HEIGHT [0..9]
-     * - WIDTH 5 
-     */
-    OLED_Printf(" Hello World...Super Long "  ,0, 0);
-    delay(10);
-    OLED_Printf(" 01234567890 ~"  ,0, 9);
-    delay(10);
-    OLED_Printf(" QWERTYUIOP[]\\",0, 18);
-    delay(10);
-    OLED_Printf(" ASDFGHJKL:;  " ,0, 27);
-    delay(10);
-    OLED_Printf(" ZXCVBNM,./  "  ,0, 36);
-    delay(10);
-    OLED_Printf(" +-*/=!@#$%^&"  ,0, 45);
-    delay(10);
-    OLED_Printf(" NEWLINE "      ,0, 54);
-    delay(10);
-    OLED_Printfi("        R E A D Y         "  ,0, 63);
-    blink();
-    delay(100);
-    OLED_StartScrollRight(0x00, 0x0F);
-    delay(2000);
-    OLED_StopScroll();
-    delay(1000);
-    OLED_StartScrollLeft(0x00, 0x0F);
-    delay(2000);
-    OLED_StopScroll();
-    delay(1000);    
-    OLED_StartScrollDiagRight(0x00, 0x07);
-    delay(2000);
-    OLED_StartScrollDiagLeft(0x00, 0x07);
-    delay(2000);
-    OLED_StopScroll();
+//     OLED_Draw_H_Line(0, 127, 0);
+//     delay(10);
+//     OLED_Draw_H_Line(0, 127, 8);
+//     delay(10);
+//     OLED_Draw_H_Line(0, 127, 32);
+//     delay(10);
+//     OLED_Draw_H_Line(0, 127, 55);
+//     delay(10);
+//     OLED_Draw_H_Line(0, 127, 63);
+//     delay(10);
+//     OLED_Draw_V_Line(0, 0, 63);
+//     delay(10);
+//     OLED_Draw_V_Line(63, 0, 63);
+//     delay(10);
+//     OLED_Draw_V_Line(127, 0, 63);
+//     delay(10);
+//    /**
+//     * TEXT RENDERING TEST :
+//     * - 8 LINES at cost of 9 Pixels each.
+//     * - HEIGHT [0..9]
+//     * - WIDTH 5 
+//     */
+//    OLED_Printf(" Hello World...Super Long "  ,0, 0);
+//    delay(10);
+//    OLED_Printf(" 01234567890 ~"  ,0, 9);
+//    delay(10);
+//    OLED_Printf(" QWERTYUIOP[]\\",0, 18);
+//    delay(10);
+//    OLED_Printf(" ASDFGHJKL:;  " ,0, 27);
+//    delay(10);
+//    OLED_Printf(" ZXCVBNM,./  "  ,0, 36);
+//    delay(10);
+//    OLED_Printf(" +-*/=!@#$%^&"  ,0, 45);
+//    delay(10);
+//    OLED_Printf(" NEWLINE "      ,0, 54);
+//    delay(10);
+//    OLED_Printfi("        R E A D Y         "  ,0, 63);
+//    blink();
+//    delay(100);
+//    OLED_StartScrollRight(0x00, 0x0F);
+//    delay(2000);
+//    OLED_StopScroll();
+//    delay(1000);
+//    OLED_StartScrollLeft(0x00, 0x0F);
+//    delay(2000);
+//    OLED_StopScroll();
+//    delay(1000);    
+//    OLED_StartScrollDiagRight(0x00, 0x07);
+//    delay(2000);
+//    OLED_StartScrollDiagLeft(0x00, 0x07);
+//    delay(2000);
+//    OLED_StopScroll();
+//    
+// Test Bitmap drawing :
+//   const u8 image[] = {
+//        
+//        0b00001111,
+//        0b00001001,
+//        0b00001001,
+//        0b00001001,
+//        0b00001001,
+//        0b00001001,
+//        0b00001001,
+//        0b00001001,
+//        0b00001001,
+//        0b00001001,
+//        0b00001111,
+//        
+//   };
+//   OLED_DrawBitmap(0, 0, 0, 127, image, sizeof(image));
 }
 /*==============================================================================
  * Interrupt Service Routine
@@ -166,18 +184,15 @@ void main(void) {
     // Scan ADC channels :
     u8 analog_discovered = ADC_Discovery();
     
-    // Format Text :
-    char text_report[20];
-    
     // If found none channels :
     if(analog_discovered == 0){
-        sprintf(text_report, TEXT_NO_ANALOG);
+        sprintf(OLED_text,"%s" ,TEXT_NO_ANALOG);
     } 
     else { 
-        sprintf(text_report, TEXT_FOUND_CHANNEL, analog_discovered);
+        sprintf(OLED_text, TEXT_FOUND_CHANNEL, analog_discovered);
     }
     OLED_Erase_H_Line(35, 120, 36); // erase half-line 
-    OLED_Printf(text_report, 0, 36);
+    OLED_Printf(OLED_text, 0, 36);
     blink();
     if(analog_discovered > 0) delay(1000); else delay(5000);
    /*==============================================================================
@@ -189,7 +204,7 @@ void main(void) {
         blink();
         // update ADC:
         for(u8 i = 0; i < analog_discovered;i++){
-            analog_value[i] = ADC_Read(i)/3;
+            analog_value[i] = (u8)ADC_Read(i)/3;
             /** NOTE :
              * A simple division will help with
              * noisy value smoothening...
@@ -206,8 +221,7 @@ void main(void) {
                     delay(10);
                 }
                 // Format Text : Compiler is stupid enough to not know array size 
-                char text_ADC[15];
-                sprintf(text_ADC, TEXT_ADC_VALUE, i, analog_value[i]);
+                sprintf(OLED_text, TEXT_ADC_VALUE, i, analog_value[i]);
 
                 // Erase previous Analog name :
                 if(analog_current!=i){
@@ -215,7 +229,7 @@ void main(void) {
                     OLED_Printf(analog_names[i], 0, 36); // Display Text Label
                 }
                 OLED_Erase_H_Line(30, 75 , 17);    // Clear Index + Value
-                OLED_Printf(text_ADC, 0, 17);      // Display current value
+                OLED_Printf(OLED_text, 0, 17);      // Display current value
 
                 // & Progress Bar :
                 OLED_Draw_Progressbar(0, 102, 48, (u8)analog_value[i] * 3);
@@ -225,31 +239,10 @@ void main(void) {
                 analog_current = i;
             }
         }
-        delay(1);
-        
-    // Test Bitmap drawing :
-    //   const u8 image[] = {
-    //        
-    //        0b00001111,
-    //        0b00001001,
-    //        0b00001001,
-    //        0b00001001,
-    //        0b00001001,
-    //        0b00001001,
-    //        0b00001001,
-    //        0b00001001,
-    //        0b00001001,
-    //        0b00001001,
-    //        0b00001111,
-    //        
-    //   };
-    //   OLED_DrawBitmap(0, 0, 0, 127, image, sizeof(image));
     }
 }
 void blink(void){
-    pinMode(RA4, OUTPUT);
-    delay(10);
-    digitalWrite(RA4, HIGH);
-    delay(10);
-    digitalWrite(RA4, LOW);
+    pinMode(TRISA4, OUTPUT);
+    delay(10); digitalWrite(TRISA4, HIGH);
+    delay(10); digitalWrite(TRISA4, LOW);
 }

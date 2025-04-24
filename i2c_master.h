@@ -68,7 +68,7 @@ void i2c_master_address(u8 address, u8 mode) {
 
 
 unsigned char i2c_read(u8 a) {
-    uint8_t temp;
+    u8 temp;
     i2c_hold();
     RCEN = 1;
     i2c_hold();

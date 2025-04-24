@@ -27,22 +27,17 @@
 #define INPUT 1
 #define OUTPUT 0
 
-// PORT-A
-#define RA0 TRISA0
-#define RA1 TRISA1
-#define RA2 TRISA2
-#define RA3 TRISA3
-#define RA4 TRISA4
-#define RA5 TRISA5
-#define RA6 TRISA6
-#define RA7 TRISA7
-
 // FUNCTIONS 
 #define pinMode(PIN, MODE) (PIN = MODE)
 #define digitalWrite(PORT, STATE) (PORT = STATE)
 #define min(x1, x2) (x1 < x2 ? x1 : x2)
 #define max(x1, x2) (x1 > x2 ? x1 : x2)
+// BIT FLAGS
+#define setFlag(flag, n) ((flag) |= (1 << n))
+#define clearFlag(flag, n) ((flag) &= ~(1 << n))
+#define getFlag(flag, n) (((flag) >> (n)) & 1)
 
 #define delay __delay_ms
+
 
 #endif
