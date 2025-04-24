@@ -176,7 +176,7 @@ void main(void) {
     else { 
         sprintf(text_report, TEXT_FOUND_CHANNEL, analog_discovered);
     }
-    OLED_Erase_H_Line(35, 100, 36); // erase half-line 
+    OLED_Erase_H_Line(35, 120, 36); // erase half-line 
     OLED_Printf(text_report, 0, 36);
     blink();
     if(analog_discovered > 0) delay(1000); else delay(5000);
