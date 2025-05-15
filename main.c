@@ -209,12 +209,11 @@ void main(void) {
              */
 //            analog_value[i] = (u8)ADC_Read(i);
             analog_value[i] = (u8)ADC_Read(i)/7;
-            delay(1);
+            delay(2);
             analog_value[i] += (u8)ADC_Read(i)/7;
-            delay(1);
+            delay(2);
             analog_value[i] += (u8)ADC_Read(i)/7;
-            delay(1);
-//            analog_value[i] = analog_value[i] * 5;
+            delay(2);
             /** NOTE :
              * A simple division will help with
              * noisy value smoothening...
@@ -224,7 +223,11 @@ void main(void) {
                 analog_current = 99; // force update label 1st time.
                 wait_first = false;  // done.
             }
-            if(analog_value[i]!=analog_cache[i]){
+            // If new value is clearly bigger than the previous :
+            if(analog_value[i] > analog_cache[i] + 1 || 
+               analog_value[i] < analog_cache[i] - 1 ){
+                
+                // 1st time clearing enabled :
                 if(!is_cleared){
                     OLED_ClearDisplay();
                     is_cleared = true;
@@ -242,7 +245,7 @@ void main(void) {
                 OLED_Printf(OLED_text, 0, 17);      // Display current value
 
                 // & Progress Bar :
-                OLED_Draw_Progressbar(0, 102, 48, (u8)analog_value[i] * 3);
+                OLED_Draw_Progressbar(0, 102, 48, (u8)analog_value[i]*3);
 
                 // Cache value for Analog Input:
                 analog_cache[i] = analog_value[i];
