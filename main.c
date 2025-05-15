@@ -22,20 +22,16 @@ u8 analog_current = 0;
 u8 analog_cache[ANALOG_AMOUNT] = {};
 u8 analog_value[ANALOG_AMOUNT] = {};
 const char* analog_names[] = { // Array of [pointer -> string(flash)]
-    " T R E B L E ", 
-    " B A S S ",
-    " B O O S T ", 
+    " V O L U M E",
+    " T R E B L E ",  
+    " B A S S ", 
     " E C H O ", 
     " D E L A Y ", 
     " R E V R B ", 
-    " T R E B L E ", 
-    " T R E B L E ", 
-    " T R E B L E ", 
-    " T R E B L E ", 
-    " T R E B L E ", 
-    " T R E B L E ", 
-    " T R E B L E ", 
-    " T R E B L E "
+    " M I C . T R E B L E ", 
+    " M I C . B A S S ", 
+    " M I C . V O L U M E ", 
+    " G T . V O L U M E ", 
 }; // Pretending this was actual 14 Names.
 const char* TEXT_ADC_VALUE = "ADC ( %d ) = %d";
 const char* TEXT_NO_ANALOG = "No Analog. Restart Now.";
@@ -182,7 +178,7 @@ void main(void) {
     OLED_ClearDisplay();
     
     // Scan ADC channels :
-    u8 analog_discovered = ADC_Discovery();
+    u8 analog_discovered = 10;//ADC_Discovery();
     
     // If found none channels :
     if(analog_discovered == 0){
@@ -204,7 +200,21 @@ void main(void) {
         blink();
         // update ADC:
         for(u8 i = 0; i < analog_discovered;i++){
-            analog_value[i] = (u8)ADC_Read(i)/3;
+            /** NOTE :
+             * Lesser noises if we read 3x times per port,
+             * sacrifice speed for accuracy & stability.
+             * - But well, I think this will no longer 
+             * be necessary once we got new board in next
+             * 2 weeks... 
+             */
+//            analog_value[i] = (u8)ADC_Read(i);
+            analog_value[i] = (u8)ADC_Read(i)/7;
+            delay(1);
+            analog_value[i] += (u8)ADC_Read(i)/7;
+            delay(1);
+            analog_value[i] += (u8)ADC_Read(i)/7;
+            delay(1);
+//            analog_value[i] = analog_value[i] * 5;
             /** NOTE :
              * A simple division will help with
              * noisy value smoothening...
@@ -225,7 +235,7 @@ void main(void) {
 
                 // Erase previous Analog name :
                 if(analog_current!=i){
-                    OLED_Erase_H_Line(0, 128/2, 36);     // Erase old Text Label
+                    OLED_Erase_H_Line(0, 127, 36);     // Erase old Text Label
                     OLED_Printf(analog_names[i], 0, 36); // Display Text Label
                 }
                 OLED_Erase_H_Line(30, 75 , 17);    // Clear Index + Value
@@ -241,8 +251,10 @@ void main(void) {
         }
     }
 }
+//#define PIN_LED TRISA4
+#define PIN_LED TRISD3
 void blink(void){
-    pinMode(TRISA4, OUTPUT);
-    delay(10); digitalWrite(TRISA4, HIGH);
-    delay(10); digitalWrite(TRISA4, LOW);
+    pinMode(PIN_LED, OUTPUT);
+    delay(10); digitalWrite(PIN_LED, HIGH);
+    delay(10); digitalWrite(PIN_LED, LOW);
 }
