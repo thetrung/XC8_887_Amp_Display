@@ -15,6 +15,7 @@
 #include "main.h"
 #define SSD1306_128_64
 #define ANALOG_AMOUNT 14 // Pins
+#define ANALOG_READ 3 // times
 /*==============================================================================
  * Variables 
  *============================================================================*/
@@ -34,8 +35,6 @@ const char* analog_names[] = { // Array of [pointer -> string(flash)]
     " G T . V O L U M E ", 
 }; // Pretending this was actual 14 Names.
 const char* TEXT_ADC_VALUE = "ADC ( %d ) = %d";
-const char* TEXT_NO_ANALOG = "No Analog. Restart Now.";
-const char* TEXT_FOUND_CHANNEL = "Found %d channels.";
 /*==============================================================================
  * FLAGS
  *==============================================================================*/  
@@ -178,15 +177,8 @@ void main(void) {
     OLED_ClearDisplay();
     
     // Scan ADC channels :
-    u8 analog_discovered = 10;//ADC_Discovery();
+    u8 analog_discovered = ADC_Discovery();
     
-    // If found none channels :
-    if(analog_discovered == 0){
-        sprintf(OLED_text,"%s" ,TEXT_NO_ANALOG);
-    } 
-    else { 
-        sprintf(OLED_text, TEXT_FOUND_CHANNEL, analog_discovered);
-    }
     OLED_Erase_H_Line(35, 120, 36); // erase half-line 
     OLED_Printf(OLED_text, 0, 36);
     blink();
@@ -199,57 +191,60 @@ void main(void) {
       // blink = delay.
         blink();
         // update ADC:
-        for(u8 i = 0; i < analog_discovered;i++){
-            /** NOTE :
-             * Lesser noises if we read 3x times per port,
-             * sacrifice speed for accuracy & stability.
-             * - But well, I think this will no longer 
-             * be necessary once we got new board in next
-             * 2 weeks... 
+        for(u8 i = 0; i < ANALOG_AMOUNT;i++){
+            /**
+             * If the scanned analog port is stable :
              */
-//            analog_value[i] = (u8)ADC_Read(i);
-            analog_value[i] = (u8)ADC_Read(i)/7;
-            delay(2);
-            analog_value[i] += (u8)ADC_Read(i)/7;
-            delay(2);
-            analog_value[i] += (u8)ADC_Read(i)/7;
-            delay(2);
-            /** NOTE :
-             * A simple division will help with
-             * noisy value smoothening...
-             */
-            if(wait_first && analog_value[i]!=0) {
-                analog_cache[i]=analog_value[i];
-                analog_current = 99; // force update label 1st time.
-                wait_first = false;  // done.
-            }
-            // If new value is clearly bigger than the previous :
-            if(analog_value[i] > analog_cache[i] + 1 || 
-               analog_value[i] < analog_cache[i] - 1 ){
-                
-                // 1st time clearing enabled :
-                if(!is_cleared){
-                    OLED_ClearDisplay();
-                    is_cleared = true;
-                    delay(10);
+            if(getFlag(analog_discovered, i)){
+                /** NOTE :
+                * Lesser noises if we read 3x times per port,
+                * sacrifice speed for accuracy & stability.
+                * - But well, I think this will no longer 
+                * be necessary once we got new board in next
+                * 2 weeks... 
+                */
+                analog_value[i] = 0;
+                for(u8 times = 0; times < ANALOG_READ; times++ ){
+                    analog_value[i] += (u8)ADC_Read(i)/7;
+                    delay(2);
                 }
-                // Format Text : Compiler is stupid enough to not know array size 
-                sprintf(OLED_text, TEXT_ADC_VALUE, i, analog_value[i]);
-
-                // Erase previous Analog name :
-                if(analog_current!=i){
-                    OLED_Erase_H_Line(0, 127, 36);     // Erase old Text Label
-                    OLED_Printf(analog_names[i], 0, 36); // Display Text Label
+                /** NOTE :
+                 * A simple division will help with
+                 * noisy value smoothening...
+                 */
+                if(wait_first && analog_value[i]!=0) {
+                    analog_cache[i]=analog_value[i];
+                    analog_current = 99; // force update label 1st time.
+                    wait_first = false;  // done.
                 }
-                OLED_Erase_H_Line(30, 75 , 17);    // Clear Index + Value
-                OLED_Printf(OLED_text, 0, 17);      // Display current value
+                // If new value is clearly bigger than the previous :
+                if(analog_value[i] > analog_cache[i] + 1 || 
+                   analog_value[i] < analog_cache[i] - 1 ){
 
-                // & Progress Bar :
-                OLED_Draw_Progressbar(0, 102, 48, (u8)analog_value[i]*3);
+                    // 1st time clearing enabled :
+                    if(!is_cleared){
+                        OLED_ClearDisplay();
+                        is_cleared = true;
+                        delay(10);
+                    }
+                    // Format Text : Compiler is stupid enough to not know array size 
+                    sprintf(OLED_text, TEXT_ADC_VALUE, i, analog_value[i]);
 
-                // Cache value for Analog Input:
-                analog_cache[i] = analog_value[i];
-                analog_current = i;
+                    // Erase previous Analog name :
+                    if(analog_current!=i){
+                        OLED_Erase_H_Line(0, 127, 36);     // Erase old Text Label
+                        OLED_Printf(analog_names[i], 0, 36); // Display Text Label
+                    }
+                    OLED_Erase_H_Line(30, 75 , 17);    // Clear Index + Value
+                    OLED_Printf(OLED_text, 0, 17);      // Display current value
+
+                    // & Progress Bar :
+                    OLED_Draw_Progressbar(0, 102, 48, analog_value[i] * ANALOG_READ);
+
+                    // Cache value for Analog Input:
+                    analog_cache[i] = analog_value[i];
+                    analog_current = i;
+                }   
             }
         }
     }

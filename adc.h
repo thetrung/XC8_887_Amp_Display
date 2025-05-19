@@ -11,11 +11,13 @@
 /**===========================
  * CONFIG  
  *===========================*/
-#define ROUND_SCAN 5
+#define ROUND_SCAN 10
 #ifndef ANALOG_AMOUNT
 #define ANALOG_AMOUNT 14
 #endif
 const char* TEXT_SCANNING = "Scanning.. ( %d / %d )";
+const char* TEXT_FOUND_CHANNEL = "Found %d channels.";
+const char* TEXT_NO_ANALOG = "No Analog. Restart Now.";
 /**===========================
  * FUNCTION IMPLEMENTATION 
  *===========================*/
@@ -91,7 +93,18 @@ u8 ADC_Discovery(void){
         OLED_Printf(OLED_text, 0, 36);
         OLED_Draw_Progressbar(0, 102, 48, i * 9);
     }
-    return count_active;
+    // If found none channels :
+    if(count_active == 0){
+        sprintf(OLED_text,"%s" ,TEXT_NO_ANALOG);
+    } 
+    else { 
+        sprintf(OLED_text, TEXT_FOUND_CHANNEL, count_active);
+    }
+    /**
+     * @return the actual bit matrix of discovered stable analog inputs. 
+     */
+    return analog_active_bit;
+//    return count_active;
 }
 
 #endif	/* ADC_H */
