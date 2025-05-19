@@ -23,16 +23,16 @@ const char* TEXT_NO_ANALOG = "No Analog. Restart Now.";
  *===========================*/
 void ADC_Init(void)
 {    
-//    TRISA = 0xFF;	/* Set as input port */
-    ADCON0 = 0xFD;	/* Ref vtg is VDD and Configure pin as analog pin */
+    ADCON0 = 0xFD;	/* Enable everything except GO_nDONE */
     ADCON1 = 0xC0;	/* (max=1011) Right Justified, 4Tad and Fosc/32. */
     ADRESH=0;		/* Flush ADC output Register */
-    ADRESL=0;   
+    ADRESL=0;  
 }
 int ADC_Read(u8 channel)
 {
+    if(channel > 13) return 0;
     int digital;
-
+    
     /* Channel 0 is selected i.e.(CHS3CHS2CHS1CHS0=0000) & ADC is disabled */
     ADCON0 =(ADCON0 & 0b11000011)|((channel<<2) & 0b00111100);  
     
@@ -44,7 +44,7 @@ int ADC_Read(u8 channel)
     digital = (ADRESH*256) | (ADRESL);	/*Combine 8-bit LSB and 2-bit MSB*/
     return(digital/10);
 }
-u8 ADC_Discovery(void){
+u16 ADC_Discovery(void){
     // Initialize : 
     u8 count_active = 0;
     u8 analog_value = 99;
@@ -73,16 +73,16 @@ u8 ADC_Discovery(void){
             // Update fresh values :
             if(analog_value == 99){
                 analog_value = current; // 1st value.
-                clearFlag(analog_active_bit, i); // disabled by default.
+                clearFlag(analog_active_bit, i+1); // disabled by default.
             } 
             // test if value is stable after 1st round :
             else if(analog_value == current){
-                setFlag(analog_active_bit, i);   // Assume it is active.
+                setFlag(analog_active_bit, i+1);   // Assume it is active.
                 // OK! Next Round !
             }
             else if(round > 0){
                 count_active -= 1;
-                clearFlag(analog_active_bit, i); // Verified: inactive.
+                clearFlag(analog_active_bit, i+1); // Verified: inactive.
                 // stop scanning from here.
                 break;
             }
@@ -104,7 +104,6 @@ u8 ADC_Discovery(void){
      * @return the actual bit matrix of discovered stable analog inputs. 
      */
     return analog_active_bit;
-//    return count_active;
 }
 
 #endif	/* ADC_H */

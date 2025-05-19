@@ -33,6 +33,9 @@ const char* analog_names[] = { // Array of [pointer -> string(flash)]
     " M I C . B A S S ", 
     " M I C . V O L U M E ", 
     " G T . V O L U M E ", 
+    " A D C 11 : N O N E ", 
+    " A D C 12 : N O N E ", 
+    " A D C 13 : N O N E ", 
 }; // Pretending this was actual 14 Names.
 const char* TEXT_ADC_VALUE = "ADC ( %d ) = %d";
 /*==============================================================================
@@ -71,7 +74,16 @@ void init(void) {
     PEIE = 0;
     GIE = 0;
     
-    PORTA = 0xFF; // enable all Port A I/O.
+// enable all Analog Ports :
+//    PORTA = 0xFF; 
+//    TRISEbits.TRISE1 = 1;
+//    TRISEbits.TRISE2 = 1;
+//    TRISBbits.TRISB0 = 1;
+//    TRISBbits.TRISB1 = 1;
+//    TRISBbits.TRISB2 = 1;
+//    TRISBbits.TRISB3 = 1;
+//    TRISBbits.TRISB4 = 1;
+//    TRISBbits.TRISB5 = 1;
 }
 void demo_rendering(void){
     
@@ -177,7 +189,7 @@ void main(void) {
     OLED_ClearDisplay();
     
     // Scan ADC channels :
-    u8 analog_discovered = ADC_Discovery();
+    u16 analog_discovered = ADC_Discovery();
     
     OLED_Erase_H_Line(35, 120, 36); // erase half-line 
     OLED_Printf(OLED_text, 0, 36);
@@ -195,7 +207,7 @@ void main(void) {
             /**
              * If the scanned analog port is stable :
              */
-            if(getFlag(analog_discovered, i)){
+            if(getFlag(analog_discovered, i+1)){
                 /** NOTE :
                 * Lesser noises if we read 3x times per port,
                 * sacrifice speed for accuracy & stability.
